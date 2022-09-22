@@ -20,7 +20,7 @@ type Config struct {
 type Rule struct {
 	RuleType      RuleType `json:"rule_type" toml:"rule_type"`
 	Policy        Policy   `json:"policy" toml:"policy"`
-	SHA256        string   `json:"sha256" toml:"sha256"`
+	Identifier    string   `json:"identifier" toml:"identifier"`
 	CustomMessage string   `json:"custom_msg,omitempty" toml:"custom_msg,omitempty"`
 }
 
