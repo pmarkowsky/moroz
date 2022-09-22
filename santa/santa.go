@@ -32,6 +32,9 @@ type Preflight struct {
 	BatchSize                     int        `json:"batch_size" toml:"batch_size"`
 	EnableBundles                 bool       `json:"enable_bundles" toml:"enable_bundles"`
 	EnabledTransitiveallowlisting bool       `json:"enabled_transitive_allowlisting" toml:"enabled_transitive_allowlisting"`
+	BlockUSBMount                 bool       `json:"block_usb_mount toml:block_usb_mount"`
+	RemountUSBMode                string     `json:"remount_usb_mode" toml:"remount_usb_mode"`
+	CleanSync                     bool       `json:"clean_sync" toml:"clean_sync"`
 }
 
 // A PreflightPayload represents the request sent by a santa client to the sync server.
