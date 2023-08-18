@@ -1,11 +1,13 @@
 package moroz
 
 import (
+        "compress/gzip"
 	"compress/zlib"
 	"context"
 	"encoding/json"
 	"net/http"
 	"time"
+	"io"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/groob/moroz/santa"
@@ -17,6 +19,7 @@ func (svc *SantaService) Preflight(ctx context.Context, machineID string, p sant
 		return nil, err
 	}
 	pre := config.Preflight
+        pre.CleanSync = true
 	return &pre, nil
 }
 
@@ -44,18 +47,34 @@ func makePreflightEndpoint(svc Service) endpoint.Endpoint {
 }
 
 func decodePreflightRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+        var reader io.ReadCloser
+        switch (r.Header.Get("Content-Encoding")) {
+        case "zlib":
 	zr, err := zlib.NewReader(r.Body)
 	if err != nil {
 		return nil, err
 	}
-	defer zr.Close()
+        reader = zr
+        defer zr.Close()
+	break;
+        case "gzip":
+	zr, err := gzip.NewReader(r.Body)
+	if err != nil {
+		return nil, err
+	}
+        reader = zr
+        defer zr.Close()
+        default:
+              reader = r.Body 
+	      break;
+	} 
 	defer r.Body.Close()
 	id, err := machineIDFromRequest(r)
 	if err != nil {
 		return nil, err
 	}
 	req := preflightRequest{MachineID: id}
-	if err := json.NewDecoder(zr).Decode(&req.payload); err != nil {
+	if err := json.NewDecoder(reader).Decode(&req.payload); err != nil {
 		return nil, err
 	}
 	return req, nil

@@ -20,18 +20,21 @@ type Config struct {
 type Rule struct {
 	RuleType      RuleType `json:"rule_type" toml:"rule_type"`
 	Policy        Policy   `json:"policy" toml:"policy"`
-	SHA256        string   `json:"sha256" toml:"sha256"`
+	Identifier    string   `json:"identifier" toml:"identifier"`
 	CustomMessage string   `json:"custom_msg,omitempty" toml:"custom_msg,omitempty"`
+	CustomURL     string   `json:"custom_url,omitempty" toml:"custom_url,omitempty"`
 }
 
 // Preflight representssync response sent to a Santa client by the sync server.
 type Preflight struct {
 	ClientMode                    ClientMode `json:"client_mode" toml:"client_mode"`
+        CleanSync                     bool       `json:"clean_sync"  toml""clean_sync"`
 	BlocklistRegex                string     `json:"blocklist_regex" toml:"blocklist_regex"`
 	AllowlistRegex                string     `json:"allowlist_regex" toml:"allowlist_regex"`
 	BatchSize                     int        `json:"batch_size" toml:"batch_size"`
 	EnableBundles                 bool       `json:"enable_bundles" toml:"enable_bundles"`
-	EnabledTransitiveAllowlisting bool       `json:"enabled_transitive_allowlisting" toml:"enabled_transitive_allowlisting"`
+        EnableAllEventUpload          bool       `json:"enable_all_event_upload" toml:"enable_all_event_upload"`
+	EnabledTransitiveAllowlisting bool       `json:"enable_transitive_rules" toml:"enable_transitive_allowlisting"`
 }
 
 // A PreflightPayload represents the request sent by a santa client to the sync server.
@@ -60,19 +63,24 @@ type RuleType int
 const (
 	// Binary rules use the SHA-256 hash of the entire binary as an identifier.
 	Binary RuleType = iota
-
+        SigningID
 	// Certificate rules are formed from the SHA-256 fingerprint of an X.509 leaf signing certificate.
 	// This is a powerful rule type that has a much broader reach than an individual binary rule .
 	// A signing certificate can sign any number of binaries.
 	Certificate
+        TeamID
 )
 
 func (r *RuleType) UnmarshalText(text []byte) error {
 	switch t := string(text); t {
 	case "BINARY":
 		*r = Binary
+        case "SIGNINGID":
+		*r = SigningID
 	case "CERTIFICATE":
 		*r = Certificate
+        case "TEAMID":
+                *r = TeamID
 	default:
 		return errors.Errorf("unknown rule_type value %q", t)
 	}
@@ -83,8 +91,13 @@ func (r RuleType) MarshalText() ([]byte, error) {
 	switch r {
 	case Binary:
 		return []byte("BINARY"), nil
+	case SigningID:
+		return []byte("SIGININGID"), nil
 	case Certificate:
 		return []byte("CERTIFICATE"), nil
+	case TeamID:
+		return []byte("TEAMID"), nil
+
 	default:
 		return nil, errors.Errorf("unknown rule_type %d", r)
 	}

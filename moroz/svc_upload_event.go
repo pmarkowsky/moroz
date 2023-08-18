@@ -1,10 +1,12 @@
 package moroz
 
 import (
+        "compress/gzip"
 	"compress/zlib"
 	"context"
 	"encoding/json"
 	"fmt"
+        "io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -52,12 +54,30 @@ func makeEventUploadEndpoint(svc Service) endpoint.Endpoint {
 }
 
 func decodeEventUpload(ctx context.Context, r *http.Request) (interface{}, error) {
+
+        var reader io.Reader
+        switch(r.Header.Get("Content-Encoding")) {
+   	case "gzip":
+        // santa sends zlib compressed payloads
+	zr, err := gzip.NewReader(r.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "create gzip reader to decode event upload")
+	}
+	defer zr.Close()
+    	reader = zr;
+        break;
+        case "zlib":
 	// santa sends zlib compressed payloads
 	zr, err := zlib.NewReader(r.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "create zlib reader to decode event upload")
 	}
 	defer zr.Close()
+    	reader = zr;
+        break;
+        default:
+          reader = r.Body
+        }
 
 	id, err := machineIDFromRequest(r)
 	if err != nil {
@@ -69,7 +89,7 @@ func decodeEventUpload(ctx context.Context, r *http.Request) (interface{}, error
 		Events []json.RawMessage `json:"events"`
 	}{}
 
-	if err := json.NewDecoder(zr).Decode(&eventPayload); err != nil {
+	if err := json.NewDecoder(reader).Decode(&eventPayload); err != nil {
 		return nil, errors.Wrap(err, "decoding event upload request json")
 	}
 
@@ -97,6 +117,8 @@ func (mw logmw) UploadEvent(ctx context.Context, machineID string, events []sant
 			"took", time.Since(begin),
 		)
 	}(time.Now())
+
+        mw.logger.Log("events", events)
 
 	err = mw.next.UploadEvent(ctx, machineID, events)
 	return
