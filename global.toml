@@ -1,0 +1,53 @@
+client_mode = "MONITOR"
+# blocklist_regex = "^(?:/Users)/.*"
+# allowlist_regex = "^(?:/Users)/.*"
+batch_size = 100
+enable_bundles = true
+enable_transitive_allowlisting = true
+enable_transitive_whitelisting = true
+enable_all_event_upload = true
+
+#[[rules]]
+#rule_type = "SIGNINGID"
+#policy = "ALLOWLIST"
+#identifier = "platform:com.apple.vim"
+#custom_msg = "Custom URL Demo"
+#custom_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+#[[rules]]
+#rule_type = "CERTIFICATE"
+#policy = "BLOCKLIST"
+#identifier = "e7726cf87cba9e25139465df5bd1557c8a8feed5c7dd338342d8da0959b63c8d"
+#custom_msg = "blocklist dash app certificate"
+
+#[[rules]]
+#rule_type = "BINARY"
+#policy = "ALLOWLIST_COMPILER"
+#identifier = "60d79d1763fefb56716e4a36284300523eb4335c3726fb9070fa83074b02279e"
+#custom_msg = "allowlist go compiler component"
+
+#[[rules]]
+#rule_type = "BINARY"
+#policy = "ALLOWLIST_COMPILER"
+#identifier = "8e78770685d51324b78588fddc6afc2f8b6cef5231c27eeb97363cc437fec18a"
+#custom_msg = "allowlist go compiler component"
+
+# not working
+#[[rules]]
+#rule_type = "SIGNINGID"
+#policy = "ALLOWLIST_COMPILER"
+#identifier = "EQHXZ8M8AV:org.golang.go"
+#custom_msg = "allowlist go compiler component"
+
+# working
+[[rules]]
+rule_type = "BINARY"
+policy = "ALLOWLIST_COMPILER"
+identifier = "316ad73e0e6cab0570cdb40685cdba207890227b918ecb8b59fb3d312bc49cc2"
+custom_msg = "allowlist go compiler component"
+
+#[[rules]]
+#rule_type = "TEAMID"
+#policy = "ALLOWLIST"
+#identifier = "6JSW4SJWN9"
+#custom_msg = ""

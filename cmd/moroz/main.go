@@ -42,14 +42,14 @@ The latest version of santa is available on the github repo page:
 
 func main() {
 	var (
-		flTLSCert = flag.String("tls-cert", env.String("MOROZ_TLS_CERT", "server.crt"), "path to TLS certificate")
-		flTLSKey  = flag.String("tls-key", env.String("MOROZ_TLS_KEY", "server.key"), "path to TLS private key")
+		//flTLSCert = flag.String("tls-cert", env.String("MOROZ_TLS_CERT", "server.crt"), "path to TLS certificate")
+		//flTLSKey  = flag.String("tls-key", env.String("MOROZ_TLS_KEY", "server.key"), "path to TLS private key")
 		flAddr    = flag.String("http-addr", env.String("MOROZ_HTTP_ADDRESS", ":8080"), "http address ex: -http-addr=:8080")
 		flConfigs = flag.String("configs", env.String("MOROZ_CONFIGS", "../../configs"), "path to config folder")
 		flEvents  = flag.String("event-dir", env.String("MOROZ_EVENT_DIR", "/tmp/santa_events"), "Path to root directory where events will be stored.")
 		flVersion = flag.Bool("version", false, "print version information")
 		flDebug   = flag.Bool("debug", false, "log at a debug level by default.")
-		flUseTLS  = flag.Bool("use-tls", true, "I promise I terminated TLS elsewhere when changing this")
+		flUseTLS  = flag.Bool("use-tls", false, "I promise I terminated TLS elsewhere when changing this")
 	)
 	flag.Parse()
 
@@ -58,10 +58,11 @@ func main() {
 		return
 	}
 
-	if _, err := os.Stat(*flTLSCert); *flUseTLS && os.IsNotExist(err) {
+/*	if _, err := os.Stat(*flTLSCert); *flUseTLS && os.IsNotExist(err) {
 		fmt.Println(openSSLBash)
 		os.Exit(2)
 	}
+*/
 
 	if !validateConfigExists(*flConfigs) {
 		fmt.Println("you need to provide at least a 'global.toml' configuration file in the configs folder. See the configs folder in the git repo for an example")
@@ -107,11 +108,12 @@ func main() {
 		srv := httputil.NewServer(*flAddr, r)
 		g.Add(func() error {
 			level.Debug(logger).Log("msg", "serve http", "tls", *flUseTLS, "addr", *flAddr)
-			if *flUseTLS {
+/*			if *flUseTLS {
 				return srv.ListenAndServeTLS(*flTLSCert, *flTLSKey)
 			} else {
+*/
 				return srv.ListenAndServe()
-			}
+			//}
 		}, func(error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()

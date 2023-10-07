@@ -92,7 +92,7 @@ func (r RuleType) MarshalText() ([]byte, error) {
 	case Binary:
 		return []byte("BINARY"), nil
 	case SigningID:
-		return []byte("SIGININGID"), nil
+		return []byte("SIGNINGID"), nil
 	case Certificate:
 		return []byte("CERTIFICATE"), nil
 	case TeamID:

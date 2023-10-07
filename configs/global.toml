@@ -3,7 +3,7 @@ client_mode = "MONITOR"
 # allowlist_regex = "^(?:/Users)/.*"
 batch_size = 100
 enable_bundles = false
-enabled_transitive_allowlisting = true
+enabled_transitive_allowlisting = false
 
 [[rules]]
 rule_type = "BINARY"
